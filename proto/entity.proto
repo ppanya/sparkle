@@ -1,0 +1,16 @@
+syntax = "proto2";
+package sparkle;
+
+message User {
+
+}
+
+
+message Session {
+
+}
+
+
+message Wallet {
+
+}
