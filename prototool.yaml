@@ -1,0 +1,16 @@
+protoc:
+  version: 3.8.0
+  includes:
+    - ./proto
+lint:
+  group: uber2
+
+generate:
+  go_options:
+    import_path: github.com/octofoxio/sparkle/proto
+
+  plugins:
+    - name: go
+      type: go
+      flags: plugins=grpc
+      output: ../../..

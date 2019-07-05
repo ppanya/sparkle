@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package sparkle.entities.v1;
+
+option csharp_namespace = "Sparkle.Entities.V1";
+option go_package = "github.com/octofoxio/sparkle/pkg/entities/v1;entitiesv1";
+option java_multiple_files = true;
+option java_outer_classname = "EntityProto";
+option java_package = "com.sparkle.entities.v1";
+option objc_class_prefix = "SEX";
+option php_namespace = "Sparkle\\Entities\\V1";
+
+import "common/v1/primitive.proto";
+
+enum UserStatus {
+    None = 0;
+    WaitingForEmailVerification = 1;
+    Active = 2;
+}
+
+message User {
+    // @inject_tag: bson:",omitempty"
+    sparkle.common.v1.String ID = 100;
+
+    // @inject_tag: bson:",omitempty"
+    sparkle.common.v1.String Email = 101;
+    // @inject_tag: bson:",omitempty"
+    sparkle.common.v1.String FullName = 102;
+    // @inject_tag: bson:",omitempty"
+    sparkle.common.v1.String PhoneNumber = 103;
+    // @inject_tag: bson:",omitempty"
+    sparkle.common.v1.Timestamp BirthDay = 104;
+    // @inject_tag: bson:",omitempty"
+    sparkle.common.v1.Gender Gender = 105;
+
+    // @inject_tag: bson:",omitempty"
+    UserStatus Status = 10;
+    sparkle.common.v1.Timestamp CreatedAt = 11;
+
+}
+
+

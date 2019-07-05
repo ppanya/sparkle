@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package sparkle.common.v1;
+
+option csharp_namespace = "Sparkle.Common.V1";
+option go_package = "github.com/octofoxio/sparkle/pkg/common/v1;commonv1";
+option java_multiple_files = true;
+option java_outer_classname = "PrimitiveProto";
+option java_package = "com.sparkle.common.v1";
+option objc_class_prefix = "SCX";
+option php_namespace = "Sparkle\\Common\\V1";
+
+message String {
+    string Data = 1;
+    bool IsNull = 2;
+}
+
+message Number {
+    int64 Data = 1;
+    bool IsNull = 2;
+}
+
+message Timestamp {
+    int64 Seconds = 1;
+}
+
+enum Gender {
+   Male = 0;
+   Female = 1;
+   Unknown = 2;
+}
+
+

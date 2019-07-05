@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package sparkle.entities.v1;
+
+option csharp_namespace = "Sparkle.Entities.V1";
+option go_package = "github.com/octofoxio/sparkle/pkg/entities/v1;entitiesv1";
+option java_multiple_files = true;
+option java_outer_classname = "EntityProto";
+option java_package = "com.sparkle.entities.v1";
+option objc_class_prefix = "SEX";
+option php_namespace = "Sparkle\\Entities\\V1";
+
+import "common/v1/primitive.proto";
+
+
+message Session {
+    // @inject_tag: bson:",omitempty"
+    sparkle.common.v1.String AccessToken = 1;
+    // @inject_tag: bson:",omitempty"
+    sparkle.common.v1.String UserID = 2;
+    // @inject_tag: bson:",omitempty"
+    sparkle.common.v1.Timestamp LatestVisitedAt = 3;
+    // @inject_tag: bson:",omitempty"
+    sparkle.common.v1.Timestamp CreatedAt = 4;
+}
+
+

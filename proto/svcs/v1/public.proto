@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package sparkle.svcs.v1;
+
+option csharp_namespace = "Sparkle.Svcs.V1";
+option go_package = "github.com/octofoxio/sparkle/pkg/svcs/v1;svcsv1";
+option java_multiple_files = true;
+option java_outer_classname = "PublicProto";
+option java_package = "com.sparkle.svcs.v1";
+option objc_class_prefix = "SSX";
+option php_namespace = "Sparkle\\Svcs\\V1";
+
+import "common/v1/primitive.proto";
+import "entities/v1/user.proto";
+
+service Sparkle {
+    rpc RegisterWithEmail(RegisterWithEmailInput) returns(RegisterWithEmailOutput){};
+}
+
+message RegisterWithEmailInput {
+    sparkle.common.v1.String Email = 1;
+    sparkle.common.v1.String PlainPassword = 2;
+    sparkle.common.v1.String CallbackURL = 3;
+    sparkle.common.v1.String DisplayName = 4;
+
+}
+
+message RegisterWithEmailOutput {
+    sparkle.entities.v1.User Result = 1;
+}

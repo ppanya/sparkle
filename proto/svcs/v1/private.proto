@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package sparkle.svcs.v1;
+
+option csharp_namespace = "Sparkle.Svcs.V1";
+option go_package = "github.com/octofoxio/sparkle/pkg/svcs/v1;svcsv1";
+option java_multiple_files = true;
+option java_outer_classname = "PrivateProto";
+option java_package = "com.sparkle.svcs.v1";
+option objc_class_prefix = "SSX";
+option php_namespace = "Sparkle\\Svcs\\V1";
+
+import "common/v1/primitive.proto";
+import "entities/v1/user.proto";
+
+service Spike {
+    rpc GetUserByAccessToken(GetUserByAccessTokenInput) returns (GetUserByAccessTokenOutput){};
+}
+
+
+message GetUserByAccessTokenInput {
+    sparkle.common.v1.String ID = 1;
+}
+message GetUserByAccessTokenOutput {
+    sparkle.entities.v1.User Result = 1;
+}
