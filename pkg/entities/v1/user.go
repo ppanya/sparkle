@@ -4,10 +4,32 @@ import (
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson/bsontype"
 	"go.mongodb.org/mongo-driver/x/bsonx"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserRecord struct {
 	User `bson:",omitempty,inline"`
+
+	// use a simple Bcrypt
+	// will upgrade to another
+	// complexity method later
+	EncryptedPassword string `bson:",omitempty"`
+}
+
+func (x *UserRecord) SetPassword(plainTextPassword string) error {
+	hashed, err := bcrypt.GenerateFromPassword([]byte(plainTextPassword), bcrypt.MinCost)
+	if err != nil {
+		return err
+	}
+	x.EncryptedPassword = string(hashed)
+	return nil
+}
+
+func (x UserRecord) ValidatePassword(value string) bool {
+	if err := bcrypt.CompareHashAndPassword([]byte(x.EncryptedPassword), []byte(value)); err != nil {
+		return false
+	}
+	return true
 }
 
 func (x UserStatus) MarshalBSONValue() (bsontype.Type, []byte, error) {

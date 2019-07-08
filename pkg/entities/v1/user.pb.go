@@ -63,8 +63,9 @@ type User struct {
 	// @inject_tag: bson:",omitempty"
 	Gender v1.Gender `protobuf:"varint,105,opt,name=Gender,proto3,enum=sparkle.common.v1.Gender" json:"Gender,omitempty" bson:",omitempty"`
 	// @inject_tag: bson:",omitempty"
-	Status               UserStatus    `protobuf:"varint,10,opt,name=Status,proto3,enum=sparkle.entities.v1.UserStatus" json:"Status,omitempty" bson:",omitempty"`
-	CreatedAt            *v1.Timestamp `protobuf:"bytes,11,opt,name=CreatedAt,proto3" json:"CreatedAt,omitempty"`
+	Status UserStatus `protobuf:"varint,10,opt,name=Status,proto3,enum=sparkle.entities.v1.UserStatus" json:"Status,omitempty" bson:",omitempty"`
+	// @inject_tag: bson:",omitempty"
+	CreatedAt            *v1.Timestamp `protobuf:"bytes,11,opt,name=CreatedAt,proto3" json:"CreatedAt,omitempty" bson:",omitempty"`
 	XXX_NoUnkeyedLiteral struct{}      `json:"-" gorm:"-" bson:"-"`
 	XXX_unrecognized     []byte        `json:"-" gorm:"-" bson:"-"`
 	XXX_sizecache        int32         `json:"-" gorm:"-" bson:"-"`

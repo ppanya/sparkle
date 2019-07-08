@@ -1,0 +1,12 @@
+syntax = "proto3";
+package sparkle.common.v1;
+option go_package = "github.com/octofoxio/sparkle/pkg/common/v1;commonv1";
+
+enum T {
+
+    OK = 0;
+
+    MissingCredentials = 400001;
+
+}
+

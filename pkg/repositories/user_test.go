@@ -2,10 +2,14 @@ package sparklerepo
 
 import (
 	"context"
+	"github.com/octofoxio/foundation"
+	"github.com/octofoxio/sparkle"
 	"github.com/octofoxio/sparkle/external/mongodb"
 	entitiesv1 "github.com/octofoxio/sparkle/pkg/entities/v1"
 	"github.com/octofoxio/sparkle/pkg/rand"
 	"github.com/stretchr/testify/assert"
+	"os"
+	"path"
 	"testing"
 )
 
@@ -16,7 +20,9 @@ func TestDefaultUserCreate(t *testing.T) {
 	}
 
 	mongoClient := mongodb.NewLocal("user-test")
-	userRepository := NewDefaultUserRepository(mongoClient)
+	wd, _ := os.Getwd()
+	config := sparkle.NewConfig(foundation.NewFileSystem(path.Join(wd, "../../resources"), foundation.StaticMode_LOCAL))
+	userRepository := NewDefaultUserRepository(mongoClient.Collection(config.UserCollectionName))
 
 	ID, err := userRepository.Create(context.Background(), &entitiesv1.UserRecord{
 		User: *rand.User(),
@@ -41,6 +47,6 @@ func TestDefaultUserCreate(t *testing.T) {
 	assert.NotEmpty(t, updatedUser)
 	assert.EqualValues(t, entitiesv1.UserStatus_Active, updatedUser.Status)
 
-	_ = mongoClient.DB.Client().Disconnect(context.Background())
+	_ = mongoClient.MongoDB.Client().Disconnect(context.Background())
 
 }

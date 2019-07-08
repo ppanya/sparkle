@@ -11,59 +11,50 @@ import (
 )
 
 type MongoTransactionalContext struct {
-	context.Context
-	mongo.Session
+	mongo.SessionContext
 }
 
-func NewMongoTransactionalContext(context context.Context, session mongo.Session) *MongoTransactionalContext {
-	return &MongoTransactionalContext{Context: context, Session: session}
+func (m *MongoTransactionalContext) Rollback(ctx context.Context) error {
+	return m.SessionContext.AbortTransaction(ctx)
 }
 
-func (m *MongoTransactionalContext) Rollback() error {
-	err := m.AbortTransaction(m)
-	if err != nil {
-		return err
-	}
-	m.Session.EndSession(m)
-	return nil
-}
-
-func (m *MongoTransactionalContext) Commit() error {
-	err := m.CommitTransaction(m)
-	if err != nil {
-		return err
-	}
-	m.Session.EndSession(m)
-	return nil
-}
-
-func NewMongoTransactionalProvider(c *mongo.Client) *MongoTransactionalProvider {
-	return &MongoTransactionalProvider{c: c}
+func (m *MongoTransactionalContext) Commit(ctx context.Context) error {
+	return m.SessionContext.CommitTransaction(ctx)
 }
 
 type MongoTransactionalProvider struct {
 	c *mongo.Client
 }
 
-func (m *MongoTransactionalProvider) Begin(ctx context.Context) (sparkle.TransactionalContext, error) {
-	s, err := m.c.StartSession()
-	if err != nil {
-		return nil, err
-	}
-	err = s.StartTransaction()
-	if err != nil {
-		return nil, err
-	}
-	return &MongoTransactionalContext{
-		Context: ctx,
-		Session: s,
-	}, nil
+func NewMongoTransactionalProvider(c *mongo.Client) *MongoTransactionalProvider {
+	return &MongoTransactionalProvider{c: c}
+}
 
+func (m *MongoTransactionalProvider) Begin(ctx context.Context, fn func(context sparkle.TransactionalContext) error) error {
+	return m.c.UseSession(ctx, func(sessionContext mongo.SessionContext) error {
+		txCtx := &MongoTransactionalContext{
+			SessionContext: sessionContext,
+		}
+		err := txCtx.StartTransaction()
+		if err != nil {
+			return err
+		}
+		err = fn(txCtx)
+		if err != nil {
+			return err
+		}
+		txCtx.EndSession(ctx)
+		return err
+	})
 }
 
 type MongoCollection struct {
 	CollectionName string
 	DB             *MongoDatabase
+}
+
+func (m *MongoCollection) FindOne(ctx context.Context, filter, value interface{}) error {
+	return m.DB.FindOne(ctx, m.CollectionName, filter, value)
 }
 
 func (m *MongoCollection) FindByID(ctx context.Context, ID string, value interface{}) error {
@@ -79,7 +70,7 @@ func (m *MongoCollection) DeleteByID(ctx context.Context, ID string) error {
 }
 
 type MongoDatabase struct {
-	DB *mongo.Database
+	MongoDB *mongo.Database
 }
 
 func (m *MongoDatabase) Collection(name string) sparkle.Collection {
@@ -94,7 +85,7 @@ func (m *MongoDatabase) FindOne(ctx context.Context, Collection string, filter i
 	if err != nil {
 		return err
 	}
-	return m.DB.
+	return m.MongoDB.
 		Collection(Collection).
 		FindOne(
 			ctx,
@@ -104,7 +95,7 @@ func (m *MongoDatabase) FindOne(ctx context.Context, Collection string, filter i
 }
 
 func (m *MongoDatabase) FindByID(ctx context.Context, Collection, ID string, value interface{}) error {
-	return m.DB.
+	return m.MongoDB.
 		Collection(Collection).
 		FindOne(ctx, bson.D{{
 			"_id", ID,
@@ -114,7 +105,7 @@ func (m *MongoDatabase) FindByID(ctx context.Context, Collection, ID string, val
 
 func (m *MongoDatabase) Save(ctx context.Context, Collection, ID string, entity interface{}) error {
 
-	_, err := m.DB.
+	_, err := m.MongoDB.
 		Collection(Collection).
 		UpdateOne(
 			ctx,
@@ -135,7 +126,7 @@ func (m *MongoDatabase) DeleteByID(ctx context.Context, Collection, ID string) e
 
 func New(db *mongo.Database) *MongoDatabase {
 	return &MongoDatabase{
-		DB: db,
+		MongoDB: db,
 	}
 }
 
@@ -162,6 +153,6 @@ func NewLocal(databaseName string) *MongoDatabase {
 	}
 	fmt.Println(ss)
 	return &MongoDatabase{
-		DB: client.Database(databaseName),
+		MongoDB: client.Database(databaseName),
 	}
 }

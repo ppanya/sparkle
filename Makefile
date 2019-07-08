@@ -9,4 +9,5 @@ backingsvc-down:
 gen-proto:
 	prototool generate
 	protoc-go-inject-tag -XXX_skip=gorm,bson -input=./pkg/entities/v1/user.pb.go
-
+	protoc-go-inject-tag -XXX_skip=gorm,bson -input=./pkg/entities/v1/identity.pb.go
+	protoc-go-inject-tag -XXX_skip=gorm,bson -input=./pkg/entities/v1/session.pb.go

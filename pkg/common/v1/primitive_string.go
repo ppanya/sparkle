@@ -20,12 +20,19 @@ func NullString() *String {
 }
 
 func (m *String) MarshalBSONValue() (bsontype.Type, []byte, error) {
+	if m == nil {
+		return bsonx.Null().MarshalBSONValue()
+	}
 	return bsonx.String(m.Data).MarshalBSONValue()
 }
 
 func (m *String) UnmarshalBSONValue(t bsontype.Type, b []byte) error {
 	if t == bsontype.String {
-		m.Data = string(b)
+		v := bsonx.String("")
+		if err := v.UnmarshalBSONValue(t, b); err != nil {
+			return err
+		}
+		m.Data = v.StringValue()
 		return nil
 	} else {
 		return fmt.Errorf("common.v1.String cannot unmarshal, require string but receive %s", t.String())

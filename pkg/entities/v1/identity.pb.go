@@ -23,14 +23,14 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type Identity struct {
 	// @inject_tag: bson:",omitempty"
-	ID *v1.String `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	ID *v1.String `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty" bson:",omitempty"`
 	// @inject_tag: bson:",omitempty"
-	DisplayName *v1.String `protobuf:"bytes,2,opt,name=DisplayName,proto3" json:"DisplayName,omitempty"`
+	DisplayName *v1.String `protobuf:"bytes,2,opt,name=DisplayName,proto3" json:"DisplayName,omitempty" bson:",omitempty"`
 	// @inject_tag: bson:",omitempty"
-	ProfilePicture       *v1.String `protobuf:"bytes,3,opt,name=ProfilePicture,proto3" json:"ProfilePicture,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
-	XXX_unrecognized     []byte     `json:"-"`
-	XXX_sizecache        int32      `json:"-"`
+	ProfilePicture       *v1.String `protobuf:"bytes,3,opt,name=ProfilePicture,proto3" json:"ProfilePicture,omitempty" bson:",omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-" gorm:"-" bson:"-"`
+	XXX_unrecognized     []byte     `json:"-" gorm:"-" bson:"-"`
+	XXX_sizecache        int32      `json:"-" gorm:"-" bson:"-"`
 }
 
 func (m *Identity) Reset()         { *m = Identity{} }

@@ -2,8 +2,8 @@ package mongodb
 
 import (
 	"context"
+	"github.com/octofoxio/sparkle"
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/mongo"
 	"testing"
 )
 
@@ -37,70 +37,55 @@ func TestMongoDatabase(t *testing.T) {
 			ID: "test",
 		}, &bb)
 
-		err = db.DB.Drop(context.Background())
+		err = db.MongoDB.Drop(context.Background())
 		assert.NoError(t, err)
 		assert.EqualValues(t, bb.ID, "test")
 	})
 
-	t.Run("transactional commit testing", func(t *testing.T) {
+	t.Run("transactional testing", func(t *testing.T) {
 		db := NewLocal("integration-test")
-		col := db.DB.Collection("tx-testing")
-		_, err := col.InsertOne(context.Background(), &A{
-			Name: "jack",
-		})
-		err = db.DB.Client().UseSession(context.Background(), func(sessionContext mongo.SessionContext) error {
-			err := sessionContext.StartTransaction()
-			if err != nil {
-				panic(err)
-			}
-			_, err = col.InsertOne(sessionContext, &A{
-				Name: "jack",
+		col := db.MongoDB.Collection("tx-test")
+
+		t.Run("must able to commit", func(t *testing.T) {
+			_ = col.Drop(context.Background())
+			_ = db.Save(context.Background(), "tx-test", "test-pre", &B{
+				A: A{Name: "jackee"},
 			})
-
+			provider := NewMongoTransactionalProvider(db.MongoDB.Client())
+			err := provider.Begin(context.Background(), func(context sparkle.TransactionalContext) error {
+				err := db.Save(context, "tx-test", "test", &B{
+					A: A{Name: "jack"},
+				})
+				assert.NoError(t, err)
+				return context.Commit(context)
+			})
 			assert.NoError(t, err)
-			err = sessionContext.CommitTransaction(context.Background())
-			sessionContext.EndSession(context.Background())
-			if err != nil {
-				panic(err)
-			}
-			return nil
-		})
-		assert.NoError(t, err)
 
-		t.Run("must has exists after commit", func(t *testing.T) {
-			var aa B
-			err = db.FindByID(context.Background(), "tx-testing", "test", &aa)
+			var bb B
+			err = db.FindByID(context.Background(), "tx-test", "test", &bb)
 			assert.NoError(t, err)
+			assert.EqualValues(t, "jack", bb.Name)
+
 		})
+		t.Run("must able to rollback", func(t *testing.T) {
+			_ = col.Drop(context.Background())
+			_ = db.Save(context.Background(), "tx-test", "test-pre", &B{
+				A: A{Name: "jackee"},
+			})
+			provider := NewMongoTransactionalProvider(db.MongoDB.Client())
+			err := provider.Begin(context.Background(), func(context sparkle.TransactionalContext) error {
+				err := db.Save(context, "tx-test", "test", &B{
+					A: A{Name: "jack"},
+				})
+				assert.NoError(t, err)
+				return context.Rollback(context)
+			})
+			assert.NoError(t, err)
 
-		//err = db.DB.Drop(context.Background())
-		//assert.NoError(t, err)
-	})
-
-	t.Run("transactional rollback testing", func(t *testing.T) {
-		db := NewLocal("integration-test")
-		c := context.Background()
-		txProvider := NewMongoTransactionalProvider(db.DB.Client())
-
-		txCtx, err := txProvider.Begin(c)
-		assert.NoError(t, err)
-
-		err = db.Save(txCtx, "transactional-testing", "test", &A{
-			Name: "jack",
-		})
-		assert.NoError(t, err)
-
-		err = txCtx.Rollback()
-		assert.NoError(t, err)
-
-		t.Run("must not found result after rollback", func(t *testing.T) {
-			var aa B
-			err = db.FindByID(context.Background(), "transactional-testing", "test", &aa)
+			var bb B
+			err = db.FindByID(context.Background(), "tx-test", "test", &bb)
 			assert.Error(t, err)
+
 		})
-
-		err = db.DB.Drop(context.Background())
-		assert.NoError(t, err)
 	})
-
 }

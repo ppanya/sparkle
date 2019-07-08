@@ -17,6 +17,10 @@ type DefaultIdentityRepository struct {
 	Identity sparkle.Collection
 }
 
+func NewDefaultIdentityRepository(identity sparkle.Collection) *DefaultIdentityRepository {
+	return &DefaultIdentityRepository{Identity: identity}
+}
+
 func (d *DefaultIdentityRepository) Create(ctx context.Context, input *entitiesv1.IdentityRecord) (ID string, err error) {
 	ID = xid.New().String()
 	err = d.Identity.Save(ctx, ID, input)

@@ -1,18 +1,21 @@
 package sparkleuc
 
 import (
-	"context"
-	entitiesv1 "github.com/octofoxio/sparkle/pkg/entities/v1"
-	svcsv1 "github.com/octofoxio/sparkle/pkg/svcs/v1"
+	"github.com/octofoxio/foundation"
+	"github.com/octofoxio/sparkle"
+	sparklecrypto "github.com/octofoxio/sparkle/pkg/crypto"
+	sparklerepo "github.com/octofoxio/sparkle/pkg/repositories"
 )
 
-func (s *SparkleUseCase) RegisterWithEmail(c context.Context, in *svcsv1.RegisterWithEmailInput) (*svcsv1.RegisterWithEmailOutput, error) {
+type RegisterUseCase struct {
+	identity sparklerepo.IdentityRepository
+	user     sparklerepo.UserRepository
+	session  sparklerepo.SessionRepository
+	signer   sparklecrypto.TokenSigner
+	sparkle.EmailSender
+	fs foundation.FileSystem
+}
 
-	ID, err := s.user.Create(c, &entitiesv1.UserRecord{
-		User: entitiesv1.User{
-			Status: entitiesv1.UserStatus_WaitingForEmailVerification,
-			Email:  in.Email,
-		},
-	})
-
+func NewRegisterUseCase(signer sparklecrypto.TokenSigner, session sparklerepo.SessionRepository, identity sparklerepo.IdentityRepository, user sparklerepo.UserRepository, emailSender sparkle.EmailSender, fs foundation.FileSystem) *RegisterUseCase {
+	return &RegisterUseCase{identity: identity, user: user, EmailSender: emailSender, fs: fs, signer: signer, session: session}
 }

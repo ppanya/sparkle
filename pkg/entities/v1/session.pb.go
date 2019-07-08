@@ -23,16 +23,16 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type Session struct {
 	// @inject_tag: bson:",omitempty"
-	AccessToken *v1.String `protobuf:"bytes,1,opt,name=AccessToken,proto3" json:"AccessToken,omitempty"`
+	AccessToken *v1.String `protobuf:"bytes,1,opt,name=AccessToken,proto3" json:"AccessToken,omitempty" bson:",omitempty"`
 	// @inject_tag: bson:",omitempty"
-	UserID *v1.String `protobuf:"bytes,2,opt,name=UserID,proto3" json:"UserID,omitempty"`
+	UserID *v1.String `protobuf:"bytes,2,opt,name=UserID,proto3" json:"UserID,omitempty" bson:",omitempty"`
 	// @inject_tag: bson:",omitempty"
-	LatestVisitedAt *v1.Timestamp `protobuf:"bytes,3,opt,name=LatestVisitedAt,proto3" json:"LatestVisitedAt,omitempty"`
+	LatestVisitedAt *v1.Timestamp `protobuf:"bytes,3,opt,name=LatestVisitedAt,proto3" json:"LatestVisitedAt,omitempty" bson:",omitempty"`
 	// @inject_tag: bson:",omitempty"
-	CreatedAt            *v1.Timestamp `protobuf:"bytes,4,opt,name=CreatedAt,proto3" json:"CreatedAt,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
-	XXX_unrecognized     []byte        `json:"-"`
-	XXX_sizecache        int32         `json:"-"`
+	CreatedAt            *v1.Timestamp `protobuf:"bytes,4,opt,name=CreatedAt,proto3" json:"CreatedAt,omitempty" bson:",omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-" gorm:"-" bson:"-"`
+	XXX_unrecognized     []byte        `json:"-" gorm:"-" bson:"-"`
+	XXX_sizecache        int32         `json:"-" gorm:"-" bson:"-"`
 }
 
 func (m *Session) Reset()         { *m = Session{} }
