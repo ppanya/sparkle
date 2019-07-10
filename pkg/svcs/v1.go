@@ -37,10 +37,11 @@ func NewSparkleV1(config *sparkle.Config) (*grpc.Server, http.Handler) {
 		userRepository     = sparklerepo.NewDefaultUserRepository(config.Database.Collection(config.UserCollectionName))
 		sessionRepository  = sparklerepo.NewDefaultSessionRepository(config.Database.Collection(config.SessionCollectionName))
 
-		registerUseCase = sparkleuc.NewRegisterUseCase(config.TokenSigner, sessionRepository, identityRepository, userRepository, config.EmailSender, config.Fs)
-		loginUseCase    = sparkleuc.NewLoginUseCase(sessionRepository, identityRepository, userRepository, config.TokenSigner)
+		registerUseCase = sparkleuc.NewRegisterUseCase(config.TokenSigner, sessionRepository, identityRepository, userRepository, config.EmailSender, config.Fs, config.LineClient)
+		loginUseCase    = sparkleuc.NewLoginUseCase(sessionRepository, identityRepository, userRepository, config.TokenSigner, config.LineClient)
+		profileUseCase  = sparkleuc.NewProfileUseCase(identityRepository, userRepository)
 
-		sparkleEndpoint = endpoints.NewSparkleEndpoints(registerUseCase, loginUseCase)
+		sparkleEndpoint = endpoints.NewSparkleEndpoints(registerUseCase, loginUseCase, profileUseCase)
 
 		serv = foundation.NewGRPCServer(
 			common.NewConfigLoaderInterceptor(
@@ -70,7 +71,7 @@ func NewSparkleV1(config *sparkle.Config) (*grpc.Server, http.Handler) {
 				// extract user session from context
 				var accessToken, ok = sparkle.GetAccessTokenFromIncomingContext(ctx)
 				if ok {
-					o, err := loginUseCase.ValidateSession(ctx, accessToken)
+					_, o, err := loginUseCase.ValidateSession(ctx, accessToken)
 					if err != nil {
 						return nil, err
 					}

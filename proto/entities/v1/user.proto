@@ -19,7 +19,7 @@ enum UserStatus {
 }
 
 message User {
-    // @inject_tag: bson:",omitempty"
+    // @inject_tag: bson:"_id,omitempty"
     sparkle.common.v1.String ID = 100;
 
     // @inject_tag: bson:",omitempty"

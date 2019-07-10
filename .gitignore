@@ -2,3 +2,6 @@
 .storage
 .credentials
 data
+dist
+
+env.yaml

@@ -23,6 +23,9 @@ type DefaultUserRepository struct {
 func (d *DefaultUserRepository) FindOne(ctx context.Context, filter interface{}) (*entitiesv1.UserRecord, error) {
 	var result entitiesv1.UserRecord
 	err := d.User.FindOne(ctx, filter, &result)
+	if err == sparkle.ErrNotFound {
+		return nil, err
+	}
 	return &result, err
 }
 

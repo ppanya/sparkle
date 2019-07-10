@@ -3,6 +3,7 @@ package sparkle
 import (
 	"fmt"
 	"github.com/octofoxio/foundation"
+	"github.com/octofoxio/sparkle/external/line"
 	sparklecrypto "github.com/octofoxio/sparkle/pkg/crypto"
 	"net/url"
 )
@@ -38,6 +39,7 @@ type Config struct {
 	UserCollectionName     string
 	IdentityCollectionName string
 	SessionCollectionName  string
+	LineClient             line.LineClient
 }
 
 func NewConfig(system foundation.FileSystem) *Config {
@@ -54,6 +56,7 @@ func NewConfig(system foundation.FileSystem) *Config {
 		IdentityCollectionName:           IdentityCollectionName,
 		UserCollectionName:               UserCollectionName,
 		SessionCollectionName:            SessionCollectionName,
+		LineClient:                       line.NewDefaultLineClient(),
 	}
 }
 
@@ -72,6 +75,8 @@ func (c *Config) GetAddress() url.URL {
 	}
 	return *c.Address
 }
+
+// SetAddress set grpc service address
 func (c *Config) SetAddress(value string) *Config {
 	host, err := url.Parse(value)
 	if err != nil {
@@ -84,6 +89,8 @@ func (c *Config) SetAddress(value string) *Config {
 func (c *Config) GetHost() url.URL {
 	return *c.Host
 }
+
+// SeteHost // set view host (confirm email page and etc.)
 func (c *Config) SetHost(value string) *Config {
 	host, err := url.Parse(value)
 	if err != nil {

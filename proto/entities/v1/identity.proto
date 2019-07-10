@@ -13,10 +13,8 @@ option php_namespace = "Sparkle\\Entities\\V1";
 import "common/v1/primitive.proto";
 
 
-message identity {
+message Identity {
 
-    // @inject_tag: bson:",omitempty"
-    sparkle.common.v1.String ID = 1;
     // @inject_tag: bson:",omitempty"
     sparkle.common.v1.String DisplayName = 2;
     // @inject_tag: bson:",omitempty"

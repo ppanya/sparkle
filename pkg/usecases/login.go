@@ -3,11 +3,12 @@ package sparkleuc
 import (
 	"context"
 	"errors"
+	"github.com/octofoxio/sparkle"
+	"github.com/octofoxio/sparkle/external/line"
 	commonv1 "github.com/octofoxio/sparkle/pkg/common/v1"
 	sparklecrypto "github.com/octofoxio/sparkle/pkg/crypto"
 	entitiesv1 "github.com/octofoxio/sparkle/pkg/entities/v1"
 	sparklerepo "github.com/octofoxio/sparkle/pkg/repositories"
-	"go.mongodb.org/mongo-driver/mongo"
 	"time"
 )
 
@@ -16,40 +17,42 @@ type LoginUseCase struct {
 	identity sparklerepo.IdentityRepository
 	user     sparklerepo.UserRepository
 	signer   sparklecrypto.TokenSigner
+
+	lineClient line.LineClient
 }
 
-func NewLoginUseCase(session sparklerepo.SessionRepository, identity sparklerepo.IdentityRepository, user sparklerepo.UserRepository, signer sparklecrypto.TokenSigner) *LoginUseCase {
-	return &LoginUseCase{session: session, identity: identity, user: user, signer: signer}
+func NewLoginUseCase(session sparklerepo.SessionRepository, identity sparklerepo.IdentityRepository, user sparklerepo.UserRepository, signer sparklecrypto.TokenSigner, line line.LineClient) *LoginUseCase {
+	return &LoginUseCase{session: session, identity: identity, user: user, signer: signer, lineClient: line}
 }
 
-func (l *LoginUseCase) ValidateSession(ctx context.Context, accessToken string) (*entitiesv1.UserRecord, error) {
+func (l *LoginUseCase) ValidateSession(ctx context.Context, accessToken string) (*entitiesv1.Session, *entitiesv1.UserRecord, error) {
 
 	session, err := l.session.FindOne(ctx, &entitiesv1.Session{
 		AccessToken: commonv1.NotNullString(accessToken),
 	})
 
-	if err == mongo.ErrNoDocuments {
-		return nil, errors.New("session not found")
+	if err == sparkle.ErrNotFound {
+		return nil, nil, errors.New("session not found")
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	if err := session.IsValid(); err != nil {
-		return nil, err
+		return &session.Session, nil, err
 	}
 
 	user, err := l.user.FindByID(ctx, session.UserID.GetData())
-	if err == mongo.ErrNoDocuments {
-		return nil, errors.New("user not found, maybe invalid session")
+	if err == sparkle.ErrNotFound {
+		return &session.Session, nil, errors.New("user not found, maybe invalid session")
 	}
-	return user, err
+	return &session.Session, user, err
 
 }
 
 func (l *LoginUseCase) CreateSession(ctx context.Context, userID string) (*entitiesv1.SessionRecord, error) {
-	accessToken, err := NewSession(l.signer, userID)
+	accessToken, err := entitiesv1.NewSession(l.signer, userID)
 	session := &entitiesv1.SessionRecord{
 		Session: entitiesv1.Session{
 			UserID:          commonv1.NotNullString(userID),

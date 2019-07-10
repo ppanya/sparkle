@@ -43,4 +43,18 @@ func TestNewGCPDatastore(t *testing.T) {
 	assert.NoError(t, err)
 	done()
 
+	col := db.Collection("test-collection")
+	err = col.Save(context.Background(), "test-item", &Entity{
+		Hi: "hello",
+	})
+	assert.NoError(t, err)
+
+	var bbb Entity
+
+	//WIP
+	err = col.FindOne(context.Background(), &Entity{
+		Hi: "hello",
+	}, &bbb)
+	assert.NoError(t, err)
+
 }

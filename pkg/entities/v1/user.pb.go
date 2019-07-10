@@ -50,8 +50,8 @@ func (UserStatus) EnumDescriptor() ([]byte, []int) {
 }
 
 type User struct {
-	// @inject_tag: bson:",omitempty"
-	ID *v1.String `protobuf:"bytes,100,opt,name=ID,proto3" json:"ID,omitempty" bson:",omitempty"`
+	// @inject_tag: bson:"_id,omitempty"
+	ID *v1.String `protobuf:"bytes,100,opt,name=ID,proto3" json:"ID,omitempty" bson:"_id,omitempty"`
 	// @inject_tag: bson:",omitempty"
 	Email *v1.String `protobuf:"bytes,101,opt,name=Email,proto3" json:"Email,omitempty" bson:",omitempty"`
 	// @inject_tag: bson:",omitempty"

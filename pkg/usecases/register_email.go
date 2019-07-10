@@ -11,32 +11,25 @@ import (
 	"time"
 )
 
-func (s *RegisterUseCase) RegisterWithEmail(c context.Context, in *svcsv1.RegisterWithEmailInput) (out *svcsv1.RegisterWithEmailOutput, err error) {
-	defer func() {
+func (s *RegisterUseCase) RegisterWithEmail(c context.Context, in *svcsv1.RegisterWithEmailInput) (out *entitiesv1.User, err error) {
 
-		if err != nil && out == nil {
-			out = &svcsv1.RegisterWithEmailOutput{}
-		}
-
-	}()
-	user := entitiesv1.User{
-		Status:      entitiesv1.UserStatus_WaitingForEmailVerification,
-		Email:       in.Email,
-		FullName:    in.FullName,
-		Gender:      in.Gender,
-		PhoneNumber: in.PhoneNumber,
-		CreatedAt:   commonv1.NewTimestamp(time.Now()),
+	userRecord := &entitiesv1.UserRecord{
+		User: entitiesv1.User{
+			Status:      entitiesv1.UserStatus_WaitingForEmailVerification,
+			Email:       in.Email,
+			FullName:    in.FullName,
+			Gender:      in.Gender,
+			PhoneNumber: in.PhoneNumber,
+			CreatedAt:   commonv1.NewTimestamp(time.Now()),
+		},
+		RegisterProvider: commonv1.RegisterProvider_EmailProvider,
 	}
-
-	record := &entitiesv1.UserRecord{
-		User: user,
-	}
-	err = record.SetPassword(in.PlainPassword.GetData())
+	err = userRecord.SetPassword(in.PlainPassword.GetData())
 	if err != nil {
 		return nil, err
 	}
-	ID, err := s.user.Create(c, record)
-	user.ID = commonv1.NotNullString(ID)
+	ID, err := s.user.Create(c, userRecord)
+	userRecord.ID = commonv1.NotNullString(ID)
 
 	if err != nil {
 		return nil, err
@@ -57,7 +50,7 @@ func (s *RegisterUseCase) RegisterWithEmail(c context.Context, in *svcsv1.Regist
 		return nil, err
 	}
 
-	accessToken, err := NewSession(s.signer, ID)
+	accessToken, err := entitiesv1.NewSession(s.signer, ID)
 	session := &entitiesv1.SessionRecord{
 		Session: entitiesv1.Session{
 			UserID:          commonv1.NotNullString(ID),
@@ -100,8 +93,6 @@ func (s *RegisterUseCase) RegisterWithEmail(c context.Context, in *svcsv1.Regist
 		return nil, err
 	}
 
-	return &svcsv1.RegisterWithEmailOutput{
-		Result: &user,
-	}, nil
+	return &userRecord.User, nil
 
 }

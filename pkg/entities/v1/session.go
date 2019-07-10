@@ -3,6 +3,7 @@ package entitiesv1
 import (
 	"errors"
 	"fmt"
+	"github.com/octofoxio/sparkle/pkg/crypto"
 	"time"
 )
 
@@ -26,4 +27,12 @@ func (s *SessionRecord) IsValid() error {
 		return errors.New("session is expired (24hrs)")
 	}
 	return nil
+}
+
+type SessionPayload struct {
+	UserID string
+}
+
+func NewSession(signer sparklecrypto.TokenSigner, UserID string) (string, error) {
+	return signer.Sign(SessionPayload{UserID: UserID})
 }

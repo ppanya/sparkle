@@ -2,11 +2,23 @@ syntax = "proto3";
 package sparkle.common.v1;
 option go_package = "github.com/octofoxio/sparkle/pkg/common/v1;commonv1";
 
+enum RegisterProvider {
+    UnknownProvider = 0;
+    EmailProvider = 1;
+    LineProvider = 2;
+    FacebookProvider = 3;
+}
+
 enum T {
 
     OK = 0;
 
     MissingCredentials = 400001;
+    SocialProfileHasAlreadyBeenUsed = 400002;
+
+    DefaultIdentityNotFound = 500001;
+
+
 
 }
 

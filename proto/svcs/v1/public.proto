@@ -12,20 +12,35 @@ option php_namespace = "Sparkle\\Svcs\\V1";
 
 import "common/v1/primitive.proto";
 import "entities/v1/user.proto";
+import "entities/v1/identity.proto";
 import "entities/v1/session.proto";
 
 service Sparkle {
     rpc Login(LoginInput) returns (LoginOutput){};
-    rpc RegisterWithEmail(RegisterWithEmailInput) returns(RegisterWithEmailOutput){};
+
+
+
+    rpc Register(RegisterInput) returns(RegisterOutput){};
+
     rpc ValidateAccessToken(ValidateAccessTokenInput) returns (ValidateAccessTokenOutput);
     rpc GetMyProfile(GetMyProfileInput) returns(GetMyProfileOutput);
     rpc GetIdentity(GetIdentityInput) returns(GetIdentityOutput);
+    rpc PutIdentity(PutIdentityInput) returns(PutIdentityOutput);
 }
-message GetIdentityInput{
 
+message PutIdentityInput {
+    sparkle.common.v1.String SiteName = 1;
+    sparkle.entities.v1.Identity Data = 2;
+}
+message PutIdentityOutput {
+    sparkle.entities.v1.Identity Result = 1;
+}
+
+message GetIdentityInput{
+    sparkle.common.v1.String SiteName = 1;
 }
 message GetIdentityOutput {
-
+    sparkle.entities.v1.Identity Result = 1;
 }
 
 message GetMyProfileInput {
@@ -37,32 +52,53 @@ message GetMyProfileOutput {
 
 message ValidateAccessTokenInput {
     sparkle.common.v1.String AccessToken = 1;
+
 }
 message ValidateAccessTokenOutput {
     message SessionStatus {
         bool IsValid = 1;
         sparkle.common.v1.String Message = 2;
+        sparkle.entities.v1.Session Session = 3;
     }
     SessionStatus Result = 1;
 }
 
+
+message LoginInputWithEmail {
+    sparkle.common.v1.String Email = 1;
+    sparkle.common.v1.String PlainPassword = 2;
+}
+message LoginInputWithFacebook {
+    sparkle.common.v1.String FacebookAccessToken = 1;
+}
+
+message LoginInputWithLine {
+    sparkle.common.v1.String LineAccessToken = 1;
+}
 message LoginInput{
-
-    message LoginInputWithEmail {
-        sparkle.common.v1.String Email = 1;
-        sparkle.common.v1.String PlainPassword = 2;
-    }
-    message LoginInputWithFacebook {
-        sparkle.common.v1.String FacebookAccessToken = 1;
-    }
-
     oneof LoginInputData {
         LoginInputWithEmail Email = 5;
         LoginInputWithFacebook Facebook = 6;
+        LoginInputWithLine Line = 7;
     }
 }
 message LoginOutput {
     sparkle.entities.v1.Session Result = 1;
+}
+
+
+message RegisterInput {
+    oneof RegisterInputData {
+        RegisterWithEmailInput Email = 1;
+        RegisterWithLineInput Line = 2;
+    }
+}
+message RegisterOutput {
+    sparkle.entities.v1.User Result = 1;
+}
+
+message RegisterWithLineInput {
+    sparkle.common.v1.String AccessToken = 1;
 }
 
 message RegisterWithEmailInput {

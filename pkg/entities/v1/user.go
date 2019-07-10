@@ -2,6 +2,7 @@ package entitiesv1
 
 import (
 	"fmt"
+	commonv1 "github.com/octofoxio/sparkle/pkg/common/v1"
 	"go.mongodb.org/mongo-driver/bson/bsontype"
 	"go.mongodb.org/mongo-driver/x/bsonx"
 	"golang.org/x/crypto/bcrypt"
@@ -9,6 +10,11 @@ import (
 
 type UserRecord struct {
 	User `bson:",omitempty,inline"`
+
+	RegisterProvider commonv1.RegisterProvider `bson:",omitempty"`
+
+	FacebookID *commonv1.String `bson:",omitempty"`
+	LineID     *commonv1.String `bson:",omitempty"`
 
 	// use a simple Bcrypt
 	// will upgrade to another

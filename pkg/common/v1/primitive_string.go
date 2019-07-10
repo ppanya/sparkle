@@ -20,8 +20,8 @@ func NullString() *String {
 }
 
 func (m *String) MarshalBSONValue() (bsontype.Type, []byte, error) {
-	if m == nil {
-		return bsonx.Null().MarshalBSONValue()
+	if m == nil || m.IsNull {
+		return bsonx.Undefined().MarshalBSONValue()
 	}
 	return bsonx.String(m.Data).MarshalBSONValue()
 }

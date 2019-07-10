@@ -1,6 +1,14 @@
 package sparkle
 
-import "context"
+import (
+	"context"
+	"errors"
+)
+
+var (
+	ErrNotFound       = errors.New("document not found")
+	ErrDuplicateField = errors.New("unique field duplicate")
+)
 
 type TransactionalProvider interface {
 	Begin(ctx context.Context, fn func(context TransactionalContext) error) error

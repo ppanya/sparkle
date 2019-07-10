@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/octofoxio/sparkle"
 	commonv1 "github.com/octofoxio/sparkle/pkg/common/v1"
 	entitiesv1 "github.com/octofoxio/sparkle/pkg/entities/v1"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func (d *RegisterUseCase) ConfirmEmailHandler(ctx aws.Context, accessToken string) error {
@@ -21,7 +21,7 @@ func (d *RegisterUseCase) ConfirmEmailHandler(ctx aws.Context, accessToken strin
 
 	user, err := d.user.FindByID(ctx, session.UserID.GetData())
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
+		if err == sparkle.ErrNotFound {
 			return fmt.Errorf("user %s not found", session.UserID.GetData())
 		}
 		return err

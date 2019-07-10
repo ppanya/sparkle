@@ -29,7 +29,8 @@ func TestMain(m *testing.M) {
 		SetDatabase(db).
 		SetHost(sparkle.LocalHostURL).
 		SetAddress(sparkle.LocalSparkleServiceURL).
-		UseJWTSignerWithHMAC256("integration-test")
+		UseJWTSignerWithHMAC256("integration-test").
+		SetDefaultEmailTemplate("{{.ConfirmUrl}}")
 
 	serv, httpserv := svcs.NewSparkleV1(config)
 	go func(s *grpc.Server) {
@@ -37,17 +38,18 @@ func TestMain(m *testing.M) {
 		_ = s.Serve(lis)
 	}(serv)
 
-	go func(h http.Handler) {
-		err := http.ListenAndServe(":"+config.Host.Opaque, h)
+	go func(h http.Handler, config *sparkle.Config) {
+		err := http.ListenAndServe(":"+config.Host.Port(), h)
 		if err != nil {
 			panic(err)
 		}
-	}(httpserv)
+	}(httpserv, config)
 
-	err := migrate.MigrateMongoCollection(db, config)
+	err := migrate.DropMongoCollection(db, config)
 	if err != nil {
 		panic(err)
 	}
+	migrate.MustMigrateMongoCollection(db, config)
 
 	c := m.Run()
 	os.Exit(c)

@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"regexp"
 	"time"
 )
 
@@ -85,26 +86,35 @@ func (m *MongoDatabase) FindOne(ctx context.Context, Collection string, filter i
 	if err != nil {
 		return err
 	}
-	return m.MongoDB.
+	err = m.MongoDB.
 		Collection(Collection).
 		FindOne(
 			ctx,
 			b,
 		).
 		Decode(value)
+	if err == mongo.ErrNoDocuments {
+		err = sparkle.ErrNotFound
+	}
+	return err
 }
 
-func (m *MongoDatabase) FindByID(ctx context.Context, Collection, ID string, value interface{}) error {
-	return m.MongoDB.
+func (m *MongoDatabase) FindByID(ctx context.Context, Collection, ID string, value interface{}) (err error) {
+	defer func() {
+		if err == mongo.ErrNoDocuments {
+			err = sparkle.ErrNotFound
+		}
+	}()
+	err = m.MongoDB.
 		Collection(Collection).
 		FindOne(ctx, bson.D{{
 			"_id", ID,
 		}}).
 		Decode(value)
+	return err
 }
 
 func (m *MongoDatabase) Save(ctx context.Context, Collection, ID string, entity interface{}) error {
-
 	_, err := m.MongoDB.
 		Collection(Collection).
 		UpdateOne(
@@ -117,6 +127,13 @@ func (m *MongoDatabase) Save(ctx context.Context, Collection, ID string, entity 
 			}},
 			options.Update().SetUpsert(true),
 		)
+	if err != nil {
+		if regexp.MustCompile("duplicate key").MatchString(err.Error()) {
+			// todo better error output
+			fmt.Println(err.Error())
+			return sparkle.ErrDuplicateField
+		}
+	}
 	return err
 }
 
