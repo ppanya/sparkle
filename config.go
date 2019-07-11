@@ -9,11 +9,11 @@ import (
 )
 
 var (
-	LocalMongoDBURL   = "mongodb://localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs"
+	LocalMongoDBURL   = "mongodb://root:root@localhost:6692" //,localhost:27018,localhost:27019/?replicaSet=rs
 	LocalDatastoreURL = ""
 
-	LocalHostURL           = "http://localhost:3009"
-	LocalSparkleServiceURL = "localhost:7911"
+	LocalHostURL           = "http://localhost:3009" //http://35.198.223.236:3009
+	LocalSparkleServiceURL = "//localhost:3019"      // //35.198.223.236:3019"
 	LocalSpikeServiceURL   = "localhost:8901"
 )
 
@@ -121,5 +121,10 @@ func (c *Config) SetDefaultEmailTemplate(value string) *Config {
 
 func (c *Config) SetDefaultEmailSenderAddress(value string) *Config {
 	c.DefaultEmailSenderAddress = value
+	return c
+}
+
+func (c *Config) SetEmailSender(sender EmailSender) *Config {
+	c.EmailSender = sender
 	return c
 }
