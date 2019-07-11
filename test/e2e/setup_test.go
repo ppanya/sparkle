@@ -34,7 +34,7 @@ func TestMain(m *testing.M) {
 
 	serv, httpserv := svcs.NewSparkleV1(config)
 	go func(s *grpc.Server) {
-		lis, _ := net.Listen("tcp", config.Address.String())
+		lis, _ := net.Listen("tcp", ":"+config.Address.Port())
 		_ = s.Serve(lis)
 	}(serv)
 

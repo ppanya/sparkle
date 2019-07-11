@@ -31,18 +31,18 @@ func (s *RegisterUseCase) RegisterWithLine(c context.Context, in *svcsv1.Registe
 		LineID:           commonv1.NotNullString(lineProfile.UserID),
 		RegisterProvider: commonv1.RegisterProvider_LineProvider,
 	}
+	ID, err := s.user.Create(c, user)
+
 	identity := &entitiesv1.IdentityRecord{
 		SiteName: "default",
-		UserID:   user.GetID().GetData(),
+		UserID:   ID,
 		Identity: entitiesv1.Identity{
 			DisplayName:    commonv1.NotNullString(lineProfile.DisplayName),
 			ProfilePicture: commonv1.NotNullString(lineProfile.PictureURL),
 		},
 	}
 
-	ID, err := s.user.Create(c, user)
 	_, err = s.identity.Create(c, identity)
-
 	user.ID = commonv1.NotNullString(ID)
 	return &user.User, nil
 }

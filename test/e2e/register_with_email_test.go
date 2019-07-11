@@ -32,7 +32,7 @@ func TestRegisterWithEmail(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotEmpty(t, output)
 
-		mail := config.EmailSender.(*sparkle.ConsoleEmailSender).Inbox[0][2]
+		mail := config.EmailSender.(*sparkle.ConsoleEmailSender).Inbox[0][3]
 		assert.NotEmpty(t, mail)
 		resp, err := http.Get(mail)
 		assert.NoError(t, err)
