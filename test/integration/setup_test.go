@@ -1,15 +1,12 @@
-package e2e
+package integration
 
 import (
-	"context"
 	"github.com/octofoxio/foundation"
 	"github.com/octofoxio/sparkle"
 	"github.com/octofoxio/sparkle/external/mongodb"
 	"github.com/octofoxio/sparkle/internal/migrate"
 	"github.com/octofoxio/sparkle/pkg/svcs"
 	"github.com/octofoxio/sparkle/pkg/testutils"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
 	"net"
 	"net/http"
@@ -25,21 +22,12 @@ var (
 func TestMain(m *testing.M) {
 	wd, _ := os.Getwd()
 	system := foundation.NewFileSystem(path.Join(wd, "../../resources"), foundation.StaticMode_LOCAL)
-	client, err := mongo.NewClient(
-		options.Client().ApplyURI(testutils.DatabaseURL))
-	if err != nil {
-		panic(err)
-	}
-	err = client.Connect(context.Background())
-	if err != nil {
-		panic(err)
-	}
-	db := mongodb.New(client.Database(testutils.DatabaseName))
+	db := mongodb.NewLocal(testutils.DatabaseName)
 
 	config = sparkle.NewConfig(system).
 		SetDatabase(db).
-		SetHost(testutils.HTTPEndpoint).
-		SetAddress(testutils.GRPCEndpoint).
+		SetHost(sparkle.LocalHostURL).
+		SetAddress(sparkle.LocalSparkleServiceURL).
 		UseJWTSignerWithHMAC256("integration-test").
 		SetDefaultEmailTemplate("{{.ConfirmUrl}}")
 
@@ -56,7 +44,7 @@ func TestMain(m *testing.M) {
 		}
 	}(httpserv, config)
 
-	err = migrate.DropMongoCollection(db, config)
+	err := migrate.DropMongoCollection(db, config)
 	if err != nil {
 		panic(err)
 	}

@@ -88,7 +88,7 @@ func (s *RegisterUseCase) RegisterWithEmail(c context.Context, in *svcsv1.Regist
 		return nil, err
 	}
 
-	err = s.EmailSender.Send(in.GetEmail().GetData(), config.DefaultEmailSenderAddress, b.String())
+	err = s.EmailSender.Send(in.GetEmail().GetData(), config.DefaultEmailSenderAddress, "Register With Email", b.String())
 	if err != nil {
 		return nil, err
 	}

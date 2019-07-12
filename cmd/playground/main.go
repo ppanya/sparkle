@@ -47,8 +47,8 @@ func StartPlaygroundService() {
 
 	grpcServer, httpHandler := svcs.NewSparkleV1(config)
 	c := context.Background()
-	go sparkle.MustListenAndServeHTTP(httpHandler, config.Host.Host)
-	go sparkle.MustListenAndServeTCP(grpcServer, config.Address.String())
+	go sparkle.MustListenAndServeHTTP(httpHandler, config.Host.Port())
+	go sparkle.MustListenAndServeTCP(grpcServer, config.Address.Port())
 	<-c.Done()
 }
 
@@ -57,7 +57,7 @@ func main() {
 	go StartPlaygroundService()
 
 	time.Sleep(time.Second * 2)
-	conn := foundation.MakeDialOrPanic(sparkle.LocalSparkleServiceURL)
+	conn := foundation.MakeDialOrPanic(config.Address.Host)
 	client := svcsv1.NewSparkleClient(conn)
 
 	output, err := client.Register(context.Background(),
@@ -80,7 +80,7 @@ func main() {
 		panic(err)
 	}
 	fmt.Println(output.Result.GetID().GetData())
-	confirmationURL, err := url.Parse(config.EmailSender.(*sparkle.ConsoleEmailSender).Inbox[0][2])
+	confirmationURL, err := url.Parse(config.EmailSender.(*sparkle.ConsoleEmailSender).Inbox[0][3])
 	if err != nil {
 		panic(err)
 	}

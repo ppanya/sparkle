@@ -46,18 +46,18 @@ func GetAccessTokenFromIncomingContext(ctx context.Context) (string, bool) {
 	return data[0], true
 }
 
-func MustListenAndServeTCP(server *grpc.Server, address string) {
-	fmt.Printf("====== TCP service start at %s ======\n", address)
-	lis, err := net.Listen("tcp", address)
+func MustListenAndServeTCP(server *grpc.Server, port string) {
+	fmt.Printf("====== TCP service start at port %s ======\n", port)
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
 	if err != nil {
 		panic(err)
 	}
 	_ = server.Serve(lis)
 }
 
-func MustListenAndServeHTTP(handler http.Handler, addr string) {
-	fmt.Printf("====== HTTP service start at %s ======\n", addr)
-	err := http.ListenAndServe(addr, handler)
+func MustListenAndServeHTTP(handler http.Handler, port string) {
+	fmt.Printf("====== HTTP service start at port %s ======\n", port)
+	err := http.ListenAndServe(fmt.Sprintf(":%s", port), handler)
 	if err != nil {
 		panic(err)
 	}

@@ -3,5 +3,6 @@
 .credentials
 data
 dist
+vendor
 
 env.yaml

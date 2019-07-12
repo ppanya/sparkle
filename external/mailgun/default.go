@@ -1,13 +1,37 @@
 package mailgun
 
-import "fmt"
+import (
+	"context"
+	"github.com/mailgun/mailgun-go/v3"
+	"github.com/octofoxio/sparkle"
+	"time"
+)
 
-type MailGunEmailSender struct{}
+type mailGunEmailSender struct {
+	client mailgun.Mailgun
+}
 
-func (m *MailGunEmailSender) Send(to, from, content string) error {
+func (m *mailGunEmailSender) Send(to, from, subject, content string, options ...sparkle.EmailOption) error {
+	option := sparkle.ComposeEmailOptions(options...)
+	message := m.client.NewMessage(from, subject, "", to)
+	message.SetHtml(content)
+	for _, bcc := range option.BCC {
+		message.AddBCC(bcc)
+	}
 
-	fmt.Println(to)
-	fmt.Println(content)
+	for _, cc := range option.CC {
+		message.AddCC(cc)
+	}
 
-	return nil
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	defer cancel()
+
+	_, _, err := m.client.Send(ctx, message)
+	return err
+}
+
+func NewMailGunEmailSender(domain, apiKey string) *mailGunEmailSender {
+	return &mailGunEmailSender{
+		client: mailgun.NewMailgun(domain, apiKey),
+	}
 }
